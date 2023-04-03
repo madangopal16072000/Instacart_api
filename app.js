@@ -32,6 +32,9 @@ app.use(fileUpload());
 
 // Route Imports
 
+app.get("/", (req, res) => {
+  res.send("Welcome to my Instacart Api");
+});
 app.use("/api/v1", productRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", orderRoutes);
