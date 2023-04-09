@@ -14,7 +14,6 @@ exports.newOrder = catchAsyncError(async (req, res, next) => {
     totalPrice,
   } = req.body;
   paymentInfo.paidAt = Date.now();
-  console.log(req.body);
   const order = await Order.create({
     shippingInfo,
     orderItems,
@@ -80,10 +79,11 @@ exports.getAllOrders = catchAsyncError(async (req, res, next) => {
 // update Order status -- Admin
 exports.updateOrder = catchAsyncError(async (req, res, next) => {
   const order = await Order.findById(req.params.id);
-  
-  if(!order)
-  {
-    return next(new ErrorHandler(`Order doesn't exists with id : ${req.params.id}`));
+
+  if (!order) {
+    return next(
+      new ErrorHandler(`Order doesn't exists with id : ${req.params.id}`)
+    );
   }
   if (order.orderStatus === "Delivered") {
     return next(
@@ -106,9 +106,9 @@ exports.updateOrder = catchAsyncError(async (req, res, next) => {
   await order.save({ validateBeforeSave: false });
 
   res.status(200).json({
-    success : true,
-    order
-  })
+    success: true,
+    order,
+  });
 });
 
 async function updateStock(id, quantity) {
