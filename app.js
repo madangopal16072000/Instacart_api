@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV !== "PRODUCTION") {
   require("dotenv").config();
 }
+
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const errorMiddleware = require("./middleware/error");
@@ -14,22 +15,42 @@ const orderRoutes = require("./routes/orderRoutes");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
 const app = express();
-// const helmet = require("helmet");
+const helmet = require("helmet");
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 app.use(fileUpload());
 
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     directives: {
-//       defaultSrc: ["'self'"],
-//       styleSrc: ["'self'", "'unsafe-inline'", "https://*.stripe.com"],
-//     },
-//   })
-// );
-
+const scriptSrcUrls = [
+  "https://m.stripe.network",
+  "https://fonts.googleapis.com/",
+];
+const styleSrcUrls = [
+  "https://m.stripe.network",
+  "https://fonts.googleapis.com/",
+];
+const connectSrcUrls = ["https://m.stripe.network"];
+const fontSrcUrls = [];
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", "blob:"],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        "blob:",
+        "data:",
+        "https://res.cloudinary.com/dpo7yvwxc/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT!
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
+  })
+);
 // Route Imports
 
 app.get("/", (req, res) => {
@@ -40,7 +61,6 @@ app.use("/api/v1", userRoutes);
 app.use("/api/v1", orderRoutes);
 app.use("/api/v1", paymentRoutes);
 
-console.log(process.env.STRIPE_SECRET_KEY);
 // middleware for Errors
 app.use(errorMiddleware);
 
